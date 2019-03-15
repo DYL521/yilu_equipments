@@ -1,0 +1,6 @@
+*.pyc
+*.log
+/coverage/
+/yilu_equipments/db.sqlite3
+yilu_equipments/media/
+.idea/
