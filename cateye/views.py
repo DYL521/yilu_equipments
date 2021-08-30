@@ -18,7 +18,7 @@ class CatEyeViewSet(viewsets.ModelViewSet):
 class CatEyeSoftwareVersionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CatEyeSoftwareVersion.objects.all()
     serializer_class = CatEyeSoftwareVersionSerializer
-    
+
 
 class CatEyeUpdateView(views.APIView):
     serializer_class = CatEyeUpdateSerializer

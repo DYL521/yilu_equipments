@@ -38,7 +38,7 @@ class RemoteOpenLockSerializer(serializers.Serializer):
     hid = serializers.IntegerField(write_only=True, help_text="Hotel ID on EFD_set")
     room_number = serializers.CharField(write_only=True, help_text="room number as given by hotel")
 
-    def validate(self, data):
+    def validate(self, data): # Hid == 222 room_number=0109
         room_instance = Room.objects.filter(hid__exact=data['hid'], room_number__exact=data['room_number'])
         if not room_instance:
             raise serializers.ValidationError(

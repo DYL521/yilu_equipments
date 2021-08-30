@@ -62,7 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_api_key.middleware.APIKeyMiddleware',
+    # 'django_api_key.middleware.APIKeyMiddleware',
 ]
 
 ROOT_URLCONF = 'yilu_equipments.urls'
@@ -141,7 +141,14 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    # 全局配置异常模块
+    'EXCEPTION_HANDLER': 'utils.exception.custom_exception_handler',
+    # 修改默认返回JSON的renderer的类
+    'DEFAULT_RENDERER_CLASSES': (
+        'utils.rendererresponse.customrenderer',
+    ),
+
 }
 
 BOOKING_API_URL = "http://booking.crowncrystalhotel.com:81"

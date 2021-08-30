@@ -1,9 +1,8 @@
 from external_api.base import ExternalAPIBase
-from PyCRC.CRCCCITT import CRCCCITT
+# from PyCRC.CRCCCITT import CRCCCITT
 from external_api.const import SamsungAirConditionerDirection, SamsungAirConditionerSpeed, SamsungAirConditionerMode
 import requests
 import json
-
 
 class SamsungAirConditioner(ExternalAPIBase):
     MANUFACTURE = "samsung_air_conditioner"
@@ -131,7 +130,7 @@ class SamsungAirConditioner(ExternalAPIBase):
     def crc16_ccitt(self, data):
         '''CCITT CRC16 双C校验'''
         crc_data = bytes().fromhex(data)
-        a = CRCCCITT().calculate(crc_data)
-        s = hex(a).upper()[2:6].zfill(4)
-        crc16_data = s[:2] + ' ' + s[2:]
-        return  crc16_data
+        # a = CRCCCITT().calculate(crc_data)
+        # s = hex(a).upper()[2:6].zfill(4)
+        # crc16_data = s[:2] + ' ' + s[2:]
+        return  crc_data

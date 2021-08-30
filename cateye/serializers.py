@@ -12,13 +12,16 @@ from cateye.models import CatEye, CatEyeSoftwareVersion
 from door.models import Lock
 from equipment.const import ManufactureList
 from rest_framework import serializers
-import semantic_version 
+import semantic_version
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 from cateye.cache import CatEyeCache
+
 cache = CatEyeCache()
+
 
 class CatEyeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -54,12 +57,12 @@ class CatEyeUpdateSerializer(CatEyeDeviceIDMixin, serializers.ModelSerializer):
         if not semantic_version.validate(value):
             raise serializers.ValidationError(_("Not valid version string"))
         return semantic_version.Version(value)
-        
+
     def validate_hardware_version(self, value):
         if not semantic_version.validate(value):
             raise serializers.ValidationError(_("Not valid version string"))
         return semantic_version.Version(value)
-        
+
     def save(self):
         self.instance = CatEye.objects.get(
             manufacture=ManufactureList.yilu,
@@ -69,7 +72,7 @@ class CatEyeUpdateSerializer(CatEyeDeviceIDMixin, serializers.ModelSerializer):
         self.instance.software_version = self.validated_data['software_version']
         self.instance.hardware_version = self.validated_data['hardware_version']
         self.instance.save()
-        
+
         return self.instance
 
     def get_room_number(self, obj):
@@ -79,14 +82,14 @@ class CatEyeUpdateSerializer(CatEyeDeviceIDMixin, serializers.ModelSerializer):
         latest = CatEyeSoftwareVersion.objects.get_latest()
         if not latest or latest.version <= self.instance.software_version:
             return None
-        return reverse("cateyesoftwareversion-detail", args=[latest.id,])
+        return reverse("cateyesoftwareversion-detail", args=[latest.id, ])
 
 
 class CatEyePingSerializer(CatEyeDeviceIDMixin, serializers.ModelSerializer):
     class Meta:
         model = CatEye
-        fields = ['manufacture_device_id',]
-        
+        fields = ['manufacture_device_id', ]
+
     def validate_manufacture_device_id(self, value):
         if cache.get_device_id_last_seen(value):
             return value
@@ -95,13 +98,19 @@ class CatEyePingSerializer(CatEyeDeviceIDMixin, serializers.ModelSerializer):
 
     def save(self):
         cache.set_device_id_last_seen(self.validated_data['manufacture_device_id'], now())
-        logger.debug("cateye for hid {}, room number {} is pinging".format(self.cateye.room.hid, self.cateye.room.room_number))
-        
-    
+        logger.debug(
+            "cateye for hid {}, room number {} is pinging".format(self.cateye.room.hid, self.cateye.room.room_number))
+
+
 class FaceRecognitionSerializer(CatEyeDeviceIDMixin, serializers.Serializer):
     manufacture_device_id = serializers.CharField(max_length=256, write_only=True)
     color_image = serializers.ImageField(write_only=True)
     black_white_image = serializers.ImageField(write_only=True)
+
+    def validate(self, attrs):
+        if not attrs.get("manufacture_device_id"):
+            raise serializers.ValidationError("manufacture_device_id 不能为空")
+        return attrs
 
     def _fetch_guest_info(self):
         url = urllib.parse.urljoin(settings.BOOKING_API_URL, "/hotel/regist/findRegistMsgForOtherPms.do")
@@ -114,7 +123,7 @@ class FaceRecognitionSerializer(CatEyeDeviceIDMixin, serializers.Serializer):
             "hid": self.cateye.room.hid,
         }
         logger.debug("cateye is for hid {}, room number {}".format(self.cateye.room.hid, self.cateye.room.room_number))
-        
+
         response = requests.get(url, params=payload, headers=headers)
         logger.debug("response from booking: {}".format(response.content.decode('utf-8')))
         return json.loads(response.content.decode('utf-8'))
@@ -142,7 +151,7 @@ class FaceRecognitionSerializer(CatEyeDeviceIDMixin, serializers.Serializer):
             return True
         else:
             return False
-    
+
     def check_face(self):
         guests_info = self._fetch_guest_info()
         if 'guestList' not in guests_info:
@@ -192,8 +201,9 @@ class FaceRecognitionSerializer(CatEyeDeviceIDMixin, serializers.Serializer):
                 if self._check_if_is_this_person(s, url, payload, user[1]):
                     logger.debug("{} is an internal user, open the door".format(user[0]))
                     return True, "success"
-                
+
         return False, _("Can't recognize this face")
+
 
 class CatEyeSoftwareVersionSerializer(serializers.ModelSerializer):
     class Meta:
