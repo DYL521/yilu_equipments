@@ -38,6 +38,8 @@ class OpenLockView(APIView):
 
     def post(self, request, format=None):
         serializer = RemoteOpenLockSerializer(data=request.data)
+        a = []
+        b = a + "a"
         if serializer.is_valid():
             lock = serializer.validated_data['lock_instance'].first()
             results = lock.open_lock()

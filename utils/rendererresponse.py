@@ -11,26 +11,25 @@ class customrenderer(JSONRenderer):
     # 重构render方法
     def render(self, data, accepted_media_type=None, renderer_context=None):
         if renderer_context:
-            if isinstance(data, dict):
-                msg = data.pop('msg', 'success')
+            msg = None
+            code = None
+            if isinstance(data, dict):  #
+                msg = data.pop("message")
                 code = data.pop('code', 1)
             else:
-                msg = 'success'
-                state = 1
-
-            # 重新构建返回的JSON字典
-            for key in data:
-                # 判断是否有自定义的异常的字段
-                # if key == 'message':
-                msg = key + " " + data[key][0]
-                data = None
-                code = 0
-                break
+                # 重新构建返回的JSON字典
+                for key in data:
+                    # 判断是否有自定义的异常的字段
+                    # if key == 'message':
+                    msg = key + " " + data[key]
+                    data = None
+                    code = 0
+                    break
 
             ret = {
                 'msg': msg,
                 'code': code,
-                'data': data,
+                'data': None,
             }
             # 返回JSON数据
             return super().render(ret, accepted_media_type, renderer_context)
